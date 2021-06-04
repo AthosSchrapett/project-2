@@ -2,11 +2,11 @@ import P from 'prop-types';
 import { useEffect, useState, useMemo } from 'react';
 import './App.css';
 
-const Post = ({ post }) => {
+const Post = ({ post, handleClick }) => {
   console.log('O filho renderizou');
   return (
     <div class_name="post">
-      <h1>{post.title}</h1>
+      <h1 onClick={() => handleClick(post.title)}>{post.title}</h1>
       <p>{post.body}</p>
     </div>
   );
@@ -18,6 +18,7 @@ Post.propTypes = {
     title: P.string,
     body: P.string,
   }),
+  handleClick: P.func,
 };
 
 function App() {
@@ -27,12 +28,14 @@ function App() {
 
   /* component did mount */
   useEffect(() => {
-    setTimeout(function () {
-      fetch('https://jsonplaceholder.typicode.com/posts')
-        .then((r) => r.json())
-        .then((r) => setPosts(r));
-    }, 5000);
+    fetch('https://jsonplaceholder.typicode.com/posts')
+      .then((r) => r.json())
+      .then((r) => setPosts(r));
   }, []);
+
+  const handleClick = (value) => {
+    setValue(value);
+  };
 
   return (
     <div className="App">
@@ -43,7 +46,7 @@ function App() {
         return (
           posts.length > 0 &&
           posts.map((post) => {
-            return <Post key={post.id} post={post} />;
+            return <Post key={post.id} post={post} onClick={handleClick} />;
           })
         );
       }, [posts])}
