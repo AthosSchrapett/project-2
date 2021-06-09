@@ -1,44 +1,60 @@
-import { useReducer } from 'react';
+import { P } from 'prop-types';
+import { createContext, useContext, useReducer } from 'react';
 import './App.css';
 
-const globalState = {
+//actions.js
+export const actions = {
+  CHANGE_TITLE: 'CHANGE_TITLE',
+};
+
+//data.js
+export const globalState = {
   title: 'O titulo do contexto',
   body: 'O body do contexto',
   counter: 0,
 };
 
-const reducer = (state, action) => {
+//reducer.js
+export const reducer = (state, action) => {
   switch (action.type) {
-    case 'muda': {
-      console.log('chamou muda com', action.payload);
-      return { ...state, title: action.payload };
-    }
-    case 'inverter': {
-      console.log('chamou inverter');
-      const { title } = state;
-      return {
-        ...state,
-        title: title.split('').reverse().join(''),
-      };
-    }
+    case actions.CHANGE_TITLE:
+      console.log('Mudar Titulo');
+      return { ...state, title: 'Qualquer Coisa' };
   }
-  console.log('Nenhuma Action Encontrada');
   return { ...state };
 };
 
-function App() {
+//AppContext.jsx
+export const Context = createContext();
+export const AppContext = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, globalState);
-  const { counter, title, body } = state;
-  console.log(body);
+
+  const changeTitle = () => {
+    dispatch({ type: actions.CHANGE_TITLE });
+  };
+
+  return <Context.Provider value={{ state, changeTitle }}>{children}</Context.Provider>;
+};
+
+AppContext.propTypes = {
+  children: P.node,
+};
+
+// H1/index.jsx
+export const H1 = () => {
+  const context = useContext(Context);
+
+  return <h1 onClick={() => context.changeTitle}>{context.title}</h1>;
+};
+
+//App.jsx
+function App() {
   return (
-    <div>
-      <h1>
-        {title} - {counter}
-      </h1>
-      <button onClick={() => dispatch({ type: 'muda', payload: new Date().toLocaleString('pt-br') })}>Click</button>
-      <button onClick={() => dispatch({ type: 'inverter' })}>Invert</button>
-      <button onClick={() => dispatch({ type: '' })}>Nenhuma Action</button>
-    </div>
+    <AppContext>
+      <div>
+        <h1>Oi</h1>
+      </div>
+    </AppContext>
   );
 }
 
