@@ -1,5 +1,5 @@
-import { P } from 'prop-types';
-import { createContext, useContext, useReducer } from 'react';
+import { PropTypes } from 'prop-types';
+import { createContext, useContext, useReducer, useRef } from 'react';
 import './App.css';
 
 //actions.js
@@ -18,8 +18,8 @@ export const globalState = {
 export const reducer = (state, action) => {
   switch (action.type) {
     case actions.CHANGE_TITLE:
-      console.log('Mudar Titulo');
-      return { ...state, title: 'Qualquer Coisa' };
+      console.log('Mudar Título');
+      return { ...state, title: action.payload };
   }
   return { ...state };
 };
@@ -29,22 +29,32 @@ export const Context = createContext();
 export const AppContext = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, globalState);
 
-  const changeTitle = () => {
-    dispatch({ type: actions.CHANGE_TITLE });
+  const changeTitle = (payload) => {
+    dispatch({ type: actions.CHANGE_TITLE, payload });
   };
 
   return <Context.Provider value={{ state, changeTitle }}>{children}</Context.Provider>;
 };
 
 AppContext.propTypes = {
-  children: P.node,
+  children: PropTypes.node,
 };
+
+/* AppContext.propTypes = {
+  children: P.node,
+}; */
 
 // H1/index.jsx
 export const H1 = () => {
   const context = useContext(Context);
+  const inputRef = useRef();
 
-  return <h1 onClick={() => context.changeTitle}>{context.title}</h1>;
+  return (
+    <>
+      <h1 onClick={() => context.changeTitle(inputRef.current.value)}>{context.state.title}</h1>
+      <input type="text" ref={inputRef} />
+    </>
+  );
 };
 
 //App.jsx
@@ -52,7 +62,7 @@ function App() {
   return (
     <AppContext>
       <div>
-        <h1>Oi</h1>
+        <H1 />
       </div>
     </AppContext>
   );
